@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Execute Shell Script</title>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.1/socket.io.min.js"></script>
+    <style>
+       #outputFrame {
+        height: 400px;
+        width: 500px;
+        overflow: auto;
+        border: 1px solid #ccc;
+        background-color: #000;
+        color: #fff;
+        padding: 10px;
+        font-family: monospace;
+    }
+    </style>
+</head>
+
+<body>
+    <form id="executeForm" action="/execute" method="GET">
+        <button type="submit" class="btn btn-primary btn-lg">Execute Shell Script</button>
+    </form>
+    <div id="outputFrame">
+        <pre id="output"></pre>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var socket; // Declare the socket variable outside the click event handler
+
+            $('#executeForm').submit(function (event) {
+                event.preventDefault(); // Prevent the form from submitting and refreshing the page
+
+                if (socket) {
+                    socket.disconnect(); // Disconnect the socket if it exists
+                }
+
+                $('#output').empty(); // Clear the content of the output
+
+                socket = io(); // Create a new socket connection
+
+                socket.on('connect', function () {
+                    socket.emit('start_stream');
+                });
+
+                socket.on('message', function (data) {
+                    $('#output').append(data + '\n');
+                    $('#outputFrame').scrollTop($('#outputFrame')[0].scrollHeight); // Scroll to the bottom of the frame
+                });
+
+                $.get($(this).attr('action'));
+            });
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+
+</body>
+
+</html>
